@@ -760,7 +760,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   calculatePathComponent: {fileID: 1574135521}
   maxSpeed: 10
+  minSpeed: 0.1
   acceleration: 50
+  slowDownToTarget: 1
+  slowDownRange: 2
 --- !u!114 &1574135521
 MonoBehaviour:
   m_ObjectHideFlags: 0

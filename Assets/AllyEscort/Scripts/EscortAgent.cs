@@ -5,13 +5,24 @@ using UnityEngine;
 
 namespace AllyEscort
 {
+    public enum CommandType
+    {
+        MoveTo,
+        Wait,
+        SetMaxSpeed,
+        SetMinSpeed,
+    }
+
     public class EscortAgent : MonoBehaviour
     {
         public CalculatePathComponent calculatePathComponent;
 
         [Header("Variables")]
         public float maxSpeed;
+        public float minSpeed;
         public float acceleration;
+        public bool slowDownToTarget;
+        public float slowDownRange;
 
         private void Awake()
         {
@@ -33,33 +44,36 @@ namespace AllyEscort
 
         }
 
-        public void HandleMessage(Message message)
+        public void HandleCommand(CommandType commandType, object Arg = null)
         {
-            switch (message.messageType)
+            switch (commandType)
             {
-                case Message.MessageType.MoveTo:
-                    if (message.data is Vector3 point)
+                case CommandType.MoveTo:
+                    if (Arg is Vector3 point)
                     {
                         List<Vector3> path = calculatePathComponent.GetPath(transform.position, point);
                         if (path != null)
                         {
-                            //DrawPathDebug(path);
                             StopAllCoroutines();
                             StartCoroutine(MoveAlongPath(path));
                         }
                     }
                     else
                     {
-                        Debug.Log($"Error: message.data is not type Vector3. It is type: {message.data.GetType()}");
+                        Debug.Log($"Error: command is not type Vector3. It is type: {Arg.GetType()}");
                     }
                     break;
-                case Message.MessageType.Wait:
+                case CommandType.Wait:
                     StopAllCoroutines();
                     break;
-                case Message.MessageType.SetSpeed:
-                    if (message.data is float speed)
+                case CommandType.SetMaxSpeed:
+                    if (Arg is float speed)
                     {
                         maxSpeed = speed;
+                    }
+                    else
+                    {
+                        Debug.Log($"Error: command is not type Float. It is type: {Arg.GetType()}");
                     }
                     break;
                 default:
@@ -71,7 +85,6 @@ namespace AllyEscort
         {
             Vector3 pos = transform.position;
             float speed = 0;
-
             DrawPathDebug(path);
 
             while (path.Count > 0)
@@ -80,8 +93,18 @@ namespace AllyEscort
                 Vector3 dir = delta.normalized;
 
                 speed = Mathf.MoveTowards(speed, maxSpeed, acceleration * Time.deltaTime);
-                Vector3 velocity = dir * speed;
 
+                // Check to see if should slow down to the target
+                if (slowDownToTarget && path.Count == 1 && delta.sqrMagnitude < slowDownRange * slowDownRange)
+                {
+                    float fractionWithinRange = delta.magnitude / slowDownRange;
+                    speed = fractionWithinRange * maxSpeed;
+                }
+
+                if (speed < minSpeed)
+                    speed = minSpeed;
+
+                Vector3 velocity = dir * speed;
                 pos += velocity * Time.deltaTime;
 
                 transform.position = pos;
@@ -104,18 +127,4 @@ namespace AllyEscort
         }
     }
 
-
-
-    public struct Message
-    {
-        public enum MessageType
-        {
-            MoveTo,
-            Wait,
-            SetSpeed,
-        }
-
-        public MessageType messageType;
-        public object data;
-    }
 }
