@@ -8,15 +8,8 @@ namespace AllyEscort
     {
         public EscortAgent escortAgent;
 
-        private bool isRunning = true;
+        private bool _isRunning = true;
 
-        // Start is called before the first frame update
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
         void Update()
         {
             if (Input.GetMouseButtonDown(0))
@@ -35,8 +28,8 @@ namespace AllyEscort
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                escortAgent.HandleCommand(CommandType.SET_MAX_SPEED, isRunning ? 2.0f : 10.0f);
-                isRunning = !isRunning;
+                escortAgent.HandleCommand(CommandType.SET_MAX_SPEED, _isRunning ? 2.0f : 10.0f);
+                _isRunning = !_isRunning;
             }
         }
     }
