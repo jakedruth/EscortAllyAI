@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EmptyState : ScriptableObject
+public class BaseState : ScriptableObject
 {
     public virtual void OnEnter() { }
     public virtual void Update() { }
