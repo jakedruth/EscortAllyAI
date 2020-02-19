@@ -7,18 +7,17 @@ namespace AllyEscort
 {
     public enum CommandType
     {
-        MoveTo,
-        Wait,
-        SetMaxSpeed,
-        SetMinSpeed,
+        MOVE_TO,
+        WAIT,
+        SET_MAX_SPEED,
+        SET_MIN_SPEED,
     }
 
     public class EscortAgent : MonoBehaviour
     {
         public CalculatePathComponent calculatePathComponent;
 
-        [Header("Variables")]
-        public float maxSpeed;
+        [Header("Variables")] public float maxSpeed;
         public float minSpeed;
         public float acceleration;
         public bool slowDownToTarget;
@@ -32,24 +31,18 @@ namespace AllyEscort
             }
         }
 
-        // Start is called before the first frame update
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
-        public void HandleCommand(CommandType commandType, object Arg = null)
+        /// <summary>
+        /// Used to receive and handle commands.
+        /// </summary>
+        /// <param name="commandType">Used to determine what type of command is sent.</param>
+        /// <param name="arg">The arguments that is needed to handle a command, like a point in world space or a speed parameter.</param>
+        public void HandleCommand(CommandType commandType, object arg = null)
         {
             switch (commandType)
             {
-                case CommandType.MoveTo:
-                    if (Arg is Vector3 point)
+                case CommandType.MOVE_TO:
+                {
+                    if (arg is Vector3 point)
                     {
                         List<Vector3> path = calculatePathComponent.GetPath(transform.position, point);
                         if (path != null)
@@ -60,24 +53,46 @@ namespace AllyEscort
                     }
                     else
                     {
-                        Debug.Log($"Error: command is not type Vector3. It is type: {Arg.GetType()}");
+                        Debug.Log($"Error: command is not type Vector3. It is type: {arg.GetType()}");
                     }
+
                     break;
-                case CommandType.Wait:
+                }
+                case CommandType.WAIT:
+                {
                     StopAllCoroutines();
                     break;
-                case CommandType.SetMaxSpeed:
-                    if (Arg is float speed)
+                }
+                case CommandType.SET_MAX_SPEED:
+                {
+                    if (arg is float speed)
                     {
                         maxSpeed = speed;
                     }
                     else
                     {
-                        Debug.Log($"Error: command is not type Float. It is type: {Arg.GetType()}");
+                        Debug.Log($"Error: command is not type Float. It is type: {arg.GetType()}");
                     }
+
                     break;
+                }
+                case CommandType.SET_MIN_SPEED:
+                {
+                    if (arg is float speed)
+                    {
+                        minSpeed = speed;
+                    }
+                    else
+                    {
+                        Debug.Log($"Error: command is not type Float. It is type: {arg.GetType()}");
+                    }
+
+                    break;
+                }
                 default:
+                {
                     throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -126,5 +141,4 @@ namespace AllyEscort
             }
         }
     }
-
 }

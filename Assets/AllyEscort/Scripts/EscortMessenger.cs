@@ -24,18 +24,18 @@ namespace AllyEscort
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hit, 20f))
                 {
-                    escortAgent.HandleCommand(CommandType.MoveTo, hit.point);
+                    escortAgent.HandleCommand(CommandType.MOVE_TO, hit.point);
                 }
             }
 
             if (Input.GetMouseButtonDown(1))
             {
-                escortAgent.HandleCommand(CommandType.Wait);
+                escortAgent.HandleCommand(CommandType.WAIT);
             }
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                escortAgent.HandleCommand(CommandType.SetMaxSpeed, (isRunning) ? 2.0f : 10.0f);
+                escortAgent.HandleCommand(CommandType.SET_MAX_SPEED, isRunning ? 2.0f : 10.0f);
                 isRunning = !isRunning;
             }
         }
