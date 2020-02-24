@@ -1,10 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BaseState : ScriptableObject
+namespace AllyEscort
 {
-    public virtual void OnEnter() { }
-    public virtual void Update() { }
-    public virtual void OnExit() { }
+    public enum StatePhases
+    {
+        ENTER,
+        UPDATE,
+        EXIT
+    }
+
+    public abstract class BaseState : ScriptableObject
+    {
+        public abstract void Initialize(params object[] args);
+
+        public abstract void OnEnter();
+
+        public abstract void Update();
+
+        public abstract void OnExit();
+    }
 }

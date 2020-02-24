@@ -9,6 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1537b97a45838884fb26e802282e75a3, type: 3}
-  m_Name: Idle
+  m_Script: {fileID: 11500000, guid: 3c5aee7bbe0a6494b9005b81eaea2601, type: 3}
+  m_Name: GoToPoint
   m_EditorClassIdentifier: 
+  maxSpeed: 10
+  minSpeed: 1
+  acceleration: 50
+  slowDownToTarget: 1
+  slowDownRange: 2

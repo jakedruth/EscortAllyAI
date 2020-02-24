@@ -17,7 +17,11 @@ namespace AllyEscort
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hit, 20f))
                 {
-                    escortAgent.HandleCommand(CommandType.MOVE_TO, hit.point);
+                    (string key, Vector3 test) message;
+                    message.key = "ToGoToPoint";
+                    message.test = hit.point;
+
+                    escortAgent.HandleCommand(CommandType.MOVE_TO, message);
                 }
             }
 

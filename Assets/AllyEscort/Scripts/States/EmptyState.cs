@@ -4,21 +4,19 @@ using UnityEngine;
 
 namespace AllyEscort
 {
-    public class IdleState : BaseState
+    public class EmptyState : BaseState
     {
+        // Update is called once per frame
         public override void OnEnter()
         {
-            throw new System.NotImplementedException();
         }
 
         public override void Update()
-        {
-            throw new System.NotImplementedException();
+        { 
         }
 
         public override void OnExit()
-        {
-            throw new System.NotImplementedException();
+        { 
         }
     }
 }
