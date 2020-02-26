@@ -8,7 +8,7 @@ namespace AllyEscort
     {
         public EscortAgent escortAgent;
 
-        private bool _isRunning = true;
+        //private bool _isRunning = true;
 
         void Update()
         {
@@ -17,24 +17,20 @@ namespace AllyEscort
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hit, 20f))
                 {
-                    (string key, Vector3 test) message;
-                    message.key = "ToGoToPoint";
-                    message.test = hit.point;
-
-                    escortAgent.HandleCommand(CommandType.MOVE_TO, message);
+                    escortAgent.TransitionToState("ToMoveToPoint", hit.point);
                 }
             }
 
             if (Input.GetMouseButtonDown(1))
             {
-                escortAgent.HandleCommand(CommandType.WAIT);
+                escortAgent.TransitionToState("ToIdle");
             }
 
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                escortAgent.HandleCommand(CommandType.SET_MAX_SPEED, _isRunning ? 2.0f : 10.0f);
-                _isRunning = !_isRunning;
-            }
+            //if (Input.GetKeyDown(KeyCode.Space))
+            //{
+            //    escortAgent.TransitionToState(CommandType.SET_MAX_SPEED, _isRunning ? 2.0f : 10.0f);
+            //    _isRunning = !_isRunning;
+            //}
         }
     }
 }

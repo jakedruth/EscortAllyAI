@@ -15,7 +15,7 @@ namespace AllyEscort
     public struct Transition
     {
         public string key;
-        public BaseState targetState;
+        public State targetState;
     }
 
     public class EscortAgent : MonoBehaviour
@@ -23,15 +23,9 @@ namespace AllyEscort
         public CalculatePathComponent calculatePathComponent;
         public List<Transition> transitions;
 
-        public BaseState CurrentState { get; private set; }
+        public State CurrentState { get; private set; }
+        public State NextState { get; private set; }
         public StatePhases CurrentPhase { get; private set; }
-
-        [Header("Variables")]
-        public float maxSpeed;
-        public float minSpeed;
-        public float acceleration;
-        public bool slowDownToTarget;
-        public float slowDownRange;
 
         private void Awake()
         {
@@ -41,6 +35,7 @@ namespace AllyEscort
             }
 
             CurrentState = transitions[0].targetState;
+            CurrentState.Initialize(this);
             CurrentPhase = StatePhases.ENTER;
         }
 
@@ -57,6 +52,7 @@ namespace AllyEscort
                     break;
                 case StatePhases.EXIT:
                     CurrentState.OnExit();
+                    TransitionToNextState();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -66,83 +62,108 @@ namespace AllyEscort
         /// <summary>
         /// Used to receive and handle commands.
         /// </summary>
-        /// <param name="commandType">Used to determine what type of command is sent.</param>
+        /// <param name="trigger"></param>
         /// <param name="args">The arguments that is needed to handle a command, like a point in world space or a speed parameter.</param>
-        public void HandleCommand(CommandType commandType, params object[] args)
+        public bool TransitionToState(string trigger, params object[] args)
         {
-            switch (commandType)
+            NextState = GetStateFromTrigger(trigger);
+
+            // TODO: handle better if the same state. Good for now.
+            if (CurrentState == NextState) 
             {
-                case CommandType.TRIGGER_STATE:
-                {
-                    if (args[0] is string transitionKey)
-                    {
-                        BaseState nextState = TransitionToState(transitionKey);
-                        object[] arguments = new object[args.Length - 1];
-                        Array.Copy(args, 1, arguments, 0, args.Length);
-
-                    }
-                    break;
-                }
-
-                //case CommandType.MOVE_TO:
-                //{
-                //    if (args is Vector3 point)
-                //    {
-                //        List<Vector3> path = calculatePathComponent.GetPath(transform.position, point);
-                //        if (path != null)
-                //        {
-                //            //StopAllCoroutines();
-                //            //StartCoroutine(MoveAlongPath(path));
-                //        }
-                //    }
-                //    else
-                //    {
-                //        Debug.Log($"Error: command is not type Vector3. It is type: {args.GetType()}");
-                //    }
-
-                //    break;
-                //}
-                //case CommandType.WAIT:
-                //{
-                //    //StopAllCoroutines();
-                //    break;
-                //}
-                //case CommandType.SET_MAX_SPEED:
-                //{
-                //    if (args is float speed)
-                //    {
-                //        maxSpeed = speed;
-                //    }
-                //    else
-                //    {
-                //        Debug.Log($"Error: command is not type Float. It is type: {args.GetType()}");
-                //    }
-
-                //    break;
-                //}
-                //case CommandType.SET_MIN_SPEED:
-                //{
-                //    if (args is float speed)
-                //    {
-                //        minSpeed = speed;
-                //    }
-                //    else
-                //    {
-                //        Debug.Log($"Error: command is not type Float. It is type: {args.GetType()}");
-                //    }
-
-                //    break;
-                //}
-                default:
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
+                CurrentState.Initialize(this, args);
+                CurrentPhase = StatePhases.ENTER;
             }
+            else
+            {
+                NextState.Initialize(this, args);
+                CurrentPhase = StatePhases.EXIT;
+            }
+
+            return true;
+
+            //switch (commandType)
+            //{
+            //    case CommandType.TRIGGER_STATE:
+            //    {
+            //        if (args[0] is string transitionKey)
+            //        {
+            //            State nextState = TransitionToState(transitionKey);
+            //            object[] arguments = new object[args.Length - 1];
+            //            Array.Copy(args, 1, arguments, 0, args.Length);
+
+            //        }
+            //        break;
+            //    }
+
+            //    //case CommandType.MOVE_TO:
+            //    //{
+            //    //    if (args is Vector3 point)
+            //    //    {
+            //    //        List<Vector3> path = calculatePathComponent.GetPath(transform.position, point);
+            //    //        if (path != null)
+            //    //        {
+            //    //            //StopAllCoroutines();
+            //    //            //StartCoroutine(MoveAlongPath(path));
+            //    //        }
+            //    //    }
+            //    //    else
+            //    //    {
+            //    //        Debug.Log($"Error: command is not type Vector3. It is type: {args.GetType()}");
+            //    //    }
+
+            //    //    break;
+            //    //}
+            //    //case CommandType.WAIT:
+            //    //{
+            //    //    //StopAllCoroutines();
+            //    //    break;
+            //    //}
+            //    //case CommandType.SET_MAX_SPEED:
+            //    //{
+            //    //    if (args is float speed)
+            //    //    {
+            //    //        maxSpeed = speed;
+            //    //    }
+            //    //    else
+            //    //    {
+            //    //        Debug.Log($"Error: command is not type Float. It is type: {args.GetType()}");
+            //    //    }
+
+            //    //    break;
+            //    //}
+            //    //case CommandType.SET_MIN_SPEED:
+            //    //{
+            //    //    if (args is float speed)
+            //    //    {
+            //    //        minSpeed = speed;
+            //    //    }
+            //    //    else
+            //    //    {
+            //    //        Debug.Log($"Error: command is not type Float. It is type: {args.GetType()}");
+            //    //    }
+
+            //    //    break;
+            //    //}
+            //    default:
+            //    {
+            //        throw new ArgumentOutOfRangeException();
+            //    }
+            //}
         }
 
-        public BaseState TransitionToState(string trigger)
+        public State GetStateFromTrigger(string trigger)
         {
             return transitions.First(t => t.key == trigger).targetState;
+        }
+
+        private void TransitionToNextState()
+        {
+            if (NextState != null)
+            {
+                CurrentState = NextState;
+                CurrentPhase = StatePhases.ENTER;
+            }
         }
 
         //private IEnumerator MoveAlongPath(List<Vector3> path)

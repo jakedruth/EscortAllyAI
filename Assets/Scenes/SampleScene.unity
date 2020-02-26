@@ -762,13 +762,8 @@ MonoBehaviour:
   transitions:
   - key: ToIdle
     targetState: {fileID: 11400000, guid: 0cb42f6d132fec0498eaf517949f515b, type: 2}
-  - key: ToGoToPoint
+  - key: ToMoveToPoint
     targetState: {fileID: 11400000, guid: 117e2ae8fe2f62d4e915739ae4563d52, type: 2}
-  maxSpeed: 10
-  minSpeed: 1
-  acceleration: 50
-  slowDownToTarget: 1
-  slowDownRange: 2
 --- !u!114 &1574135521
 MonoBehaviour:
   m_ObjectHideFlags: 0
