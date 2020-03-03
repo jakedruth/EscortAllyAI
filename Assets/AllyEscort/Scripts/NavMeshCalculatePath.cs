@@ -5,13 +5,13 @@ using UnityEngine.AI;
 
 public class NavMeshCalculatePath : CalculatePathComponent
 {
-    public float maxDistance;
+    public float closestPointRange;
 
     public override List<Vector3> GetPath(Vector3 start, Vector3 end)
     {
         NavMeshPath navMeshPath = new NavMeshPath();
-        if (NavMesh.SamplePosition(start, out NavMeshHit startHit, maxDistance, NavMesh.AllAreas) &&
-            NavMesh.SamplePosition(end, out NavMeshHit endHit, maxDistance, NavMesh.AllAreas) &&
+        if (NavMesh.SamplePosition(start, out NavMeshHit startHit, closestPointRange, NavMesh.AllAreas) &&
+            NavMesh.SamplePosition(end, out NavMeshHit endHit, closestPointRange, NavMesh.AllAreas) &&
             NavMesh.CalculatePath(startHit.position, endHit.position, NavMesh.AllAreas, navMeshPath))
         {
             List<Vector3> path = new List<Vector3>();

@@ -7,6 +7,7 @@ namespace AllyEscort
     public class EscortMessenger : MonoBehaviour
     {
         public EscortAgent escortAgent;
+        public Transform cursorTransform;
 
         //private bool _isRunning = true;
 
@@ -18,6 +19,8 @@ namespace AllyEscort
                 if (Physics.Raycast(ray, out RaycastHit hit, 20f))
                 {
                     escortAgent.TransitionToState("ToMoveToPoint", hit.point);
+                    if (cursorTransform != null)
+                        cursorTransform.position = hit.point;
                 }
             }
 

@@ -6,11 +6,6 @@ using UnityEngine;
 
 namespace AllyEscort
 {
-    public enum CommandType
-    {
-        TRIGGER_STATE
-    }
-
     [Serializable]
     public struct Transition
     {
@@ -31,7 +26,7 @@ namespace AllyEscort
         {
             if (calculatePathComponent == null)
             {
-                Debug.LogError($"Error: CalculatePathComponent is null. This class must have one");
+                Debug.LogError($"<b><color=red>Error:</color></b> Calculate Path Component is null. This class must have access to one", this);
             }
 
             CurrentState = transitions[0].targetState;
