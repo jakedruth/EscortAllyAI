@@ -6,8 +6,11 @@ namespace AllyEscort
 {
     public class IdleState : State
     {
-        internal override void HandleInitialize()
-        { }
+        internal override bool HandleInitialize()
+        {
+            return true;
+
+        }
 
         internal override void HandleOnEnter()
         { }

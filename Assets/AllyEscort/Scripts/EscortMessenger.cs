@@ -29,11 +29,10 @@ namespace AllyEscort
                 escortAgent.TransitionToState("ToIdle");
             }
 
-            //if (Input.GetKeyDown(KeyCode.Space))
-            //{
-            //    escortAgent.TransitionToState(CommandType.SET_MAX_SPEED, _isRunning ? 2.0f : 10.0f);
-            //    _isRunning = !_isRunning;
-            //}
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                escortAgent.TransitionToState("ToFollowPlayer", transform);
+            }
         }
     }
 }

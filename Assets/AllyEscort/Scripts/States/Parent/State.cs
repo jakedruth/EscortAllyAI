@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace AllyEscort
@@ -24,7 +25,10 @@ namespace AllyEscort
             Owner = owner;
             Args = args;
             _isInitialized = true;
-            HandleInitialize();
+            if (!HandleInitialize())
+            {
+                throw new ArgumentException($"Initialize for state {name}");
+            }
         }
 
         public void OnEnter()
@@ -49,13 +53,13 @@ namespace AllyEscort
 
         public void OnExit()
         {
-            Debug.Log($"On Exit State ({name})");
+            //Debug.Log($"On Exit State ({name})");
 
             _isInitialized = false;
             HandleOnExit();
         }
 
-        internal abstract void HandleInitialize();
+        internal abstract bool HandleInitialize();
         internal abstract void HandleOnEnter();
         internal abstract void HandleUpdate();
         internal abstract void HandleOnExit();

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c5aee7bbe0a6494b9005b81eaea2601, type: 3}
   m_Name: MoveToPoint
   m_EditorClassIdentifier: 
-  maxSpeed: 5
+  maxSpeed: 4
   minSpeed: 1
   acceleration: 50
   slowDownToTarget: 1
