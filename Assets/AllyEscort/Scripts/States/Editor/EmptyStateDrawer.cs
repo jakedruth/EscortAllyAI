@@ -22,7 +22,7 @@ namespace AllyEscort
         {
             base.OnInspectorGUI();
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-            if (GUILayout.Button("Generate State Behavior"))
+            if (GUILayout.Button("Create New State Script"))
             {
                 // Get the selected object (the scriptable object that wants a custom state behavior)
                 Object selectedObject = Selection.activeObject;
@@ -30,7 +30,7 @@ namespace AllyEscort
                 string text = File.ReadAllText(path);
 
                 // Prompt a save file dialog and get a path to it
-                string newFilePath = EditorUtility.SaveFilePanel("Create Behavior Script",
+                string newFilePath = EditorUtility.SaveFilePanel("Create New State Script",
                     path, 
                     Path.GetFileNameWithoutExtension(path) + "State",
                     "cs");
