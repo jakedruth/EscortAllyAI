@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace AllyEscort
 {
+    
+    [CreateAssetMenu(fileName = "New State", menuName = "Ally Escort/Create New STATE", order = 2)]
     public class EmptyState : State
     {
         internal override bool HandleInitialize()
