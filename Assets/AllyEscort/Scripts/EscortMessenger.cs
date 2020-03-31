@@ -18,20 +18,51 @@ namespace AllyEscort
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hit, 20f))
                 {
-                    escortAgent.TransitionToState("ToMoveToPoint", hit.point);
-                    if (cursorTransform != null)
-                        cursorTransform.position = hit.point;
+                    InteractableObject interactableObject = hit.transform.GetComponent<InteractableObject>();
+                    if (interactableObject != null)
+                    {
+                        escortAgent.TransitionToState("InteractWithObject", interactableObject);
+                        if (cursorTransform != null)
+                        {
+                            cursorTransform.SetParent(null);
+                            cursorTransform.position = interactableObject.transform.position;
+                        }
+                    }
+                    else
+                    {
+                        escortAgent.TransitionToState("MoveToPoint", hit.point);
+                        if (cursorTransform != null)
+                        {
+                            cursorTransform.SetParent(null);
+                            cursorTransform.position = hit.point;
+                        }
+                    }
                 }
             }
 
             if (Input.GetMouseButtonDown(1))
             {
-                escortAgent.TransitionToState("ToIdle");
+                escortAgent.TransitionToState("Idle");
+                if (cursorTransform != null)
+                {
+                    cursorTransform.SetParent(null);
+                    cursorTransform.position = escortAgent.transform.position;
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                escortAgent.TransitionToState("ToFollowPlayer", transform);
+                escortAgent.TransitionToState("FollowPlayer", transform);
+                if (cursorTransform != null)
+                {
+                    cursorTransform.SetParent(transform);
+                    cursorTransform.position = transform.position;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                escortAgent.TransitionToState("WalkAimlessly");
             }
         }
     }

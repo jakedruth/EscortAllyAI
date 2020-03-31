@@ -9,13 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a83cfce265597864c8c5084db5838697, type: 3}
-  m_Name: FollowPlayer
+  m_Script: {fileID: 11500000, guid: f5ab8f09297d5a149a0dc1fa41aa5382, type: 3}
+  m_Name: InteractWithObject
   m_EditorClassIdentifier: 
   maxSpeed: 5
   minSpeed: 1
   acceleration: 50
   slowDownToTarget: 1
   slowDownRange: 0.75
-  targetDistance: 1
-  reCalculateDistance: 1.25

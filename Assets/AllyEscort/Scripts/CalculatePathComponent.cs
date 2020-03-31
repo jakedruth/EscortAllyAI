@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class CalculatePathComponent : MonoBehaviour
+namespace AllyEscort
 {
-    public abstract List<Vector3> GetPath(Vector3 start, Vector3 end);
+    public abstract class CalculatePathComponent : MonoBehaviour
+    {
+        public abstract List<Vector3> GetPath(Vector3 start, Vector3 end);
+    }
+
 }

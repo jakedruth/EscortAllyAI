@@ -9,7 +9,6 @@ namespace AllyEscort
         internal override bool HandleInitialize()
         {
             return true;
-
         }
 
         internal override void HandleOnEnter()

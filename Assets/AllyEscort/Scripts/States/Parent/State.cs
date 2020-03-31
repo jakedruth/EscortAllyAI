@@ -21,7 +21,7 @@ namespace AllyEscort
 
         public void Initialize(EscortAgent owner, params object[] args)
         {
-            Debug.Log($"Initializing state ({name})");
+            //Debug.Log($"Initializing state ({name})");
             Owner = owner;
             Args = args;
             _isInitialized = true;
@@ -33,7 +33,7 @@ namespace AllyEscort
 
         public void OnEnter()
         {
-            Debug.Log($"On Enter State ({name})");
+            //Debug.Log($"On Enter State ({name})");
 
             if (!_isInitialized)
             {

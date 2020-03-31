@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using AllyEscort;
 using UnityEngine;
 
-public class FollowPlayerState : GoToPointState
+public class FollowPlayerState : MoveToPointState
 {
     [Header("Follow Variables")]
-    public float minDistance;
+    public float targetDistance;
+    public float reCalculateDistance;
+
     public Transform Target { get; private set; }
 
     internal override bool HandleInitialize()
@@ -23,64 +25,53 @@ public class FollowPlayerState : GoToPointState
 
     internal override void HandleUpdate()
     {
-        if (path == null)
-            return;
+        base.HandleUpdate();
 
-        // see if the path needs to be recalculated
-        Vector3 targetDelta = Target.position - (path.Count == 0 ? Owner.transform.position : path[path.Count - 1]);
-        float sqrDistance = targetDelta.sqrMagnitude;
-        float totalRange = slowDownRange + minDistance;
+        // set up variables
+        Vector3 targetPos = Target.position;
+        Vector3 pathEndPoint = path.Count > 0 ? path[path.Count - 1] : Owner.transform.position;
+        Vector3 delta = targetPos - pathEndPoint;
 
-        if (sqrDistance > (minDistance + 0.1f) * (minDistance + 0.1f))
+        // Check to see if the target has moved too far
+        if (delta.sqrMagnitude > reCalculateDistance * reCalculateDistance)
         {
-            CalculatePath(Target.position);
-        }
-
-        if (path.Count == 0)
-            return;
-
-        Vector3 pos = Owner.transform.position;
-        Vector3 delta = path[0] - pos;
-        Vector3 dir = delta.normalized;
-
-        speed = Mathf.MoveTowards(speed, maxSpeed, acceleration * Time.deltaTime);
-
-       
-
-        if (speed < minSpeed)
-            speed = minSpeed;
-
-        // Check to see if should slow down to the target
-        if (slowDownToTarget && path.Count >= 1 && delta.sqrMagnitude < totalRange * totalRange)
-        {
-            float fractionWithinRange = delta.magnitude - minDistance / slowDownRange;
-            speed = Mathf.Max(fractionWithinRange * maxSpeed, 0);
-        }
-
-        Vector3 velocity = dir * speed;
-        pos += velocity * Time.deltaTime;
-
-        Owner.transform.position = pos;
-
-        if (delta.sqrMagnitude <= 0.01f)
-        {
-            path.RemoveAt(0);
+            CalculatePath(targetPos);
         }
     }
 
-    public new void CalculatePath(Vector3 targetPoint)
+    internal override void CalculatePath(Vector3 targetPoint)
     {
         base.CalculatePath(targetPoint);
 
-        //int last = path.Count - 1;
-        //Vector3 lastPoint = path[last];
-        //Vector3 prev = path.Count == 1 ? Owner.transform.position : path[last - 1];
-        //Vector3 delta = lastPoint - prev;
-        //Vector3 dir = delta.normalized;
+        // Move the last point closer to the start of the path based on targetDistance
+        float remainingDistance = targetDistance;
+        for (int i = path.Count - 1; i >= 0; i--)
+        {
+            Vector3 a = (i == 0) ? Owner.transform.position : path[i - 1];
+            Vector3 b = path[i];
+            Vector3 delta = b - a;
+            float distance = delta.magnitude;
+            if (distance > remainingDistance)
+            {
+                path[i] = Vector3.MoveTowards(b, a, remainingDistance);
+                break;
+            }
 
-        //float distance = delta.magnitude;
-        //float newDistance = Mathf.Max(distance - minDistance, 0);
-
-        //path[last] = prev + dir * newDistance;
+            remainingDistance -= distance;
+            path.RemoveAt(i);
+        }
     }
+
+    internal override void HandleNullPath()
+    {
+        return;
+    }
+
+    internal override void HandleEmptyPath()
+    {
+        CalculatePath(Target.position);
+        return;
+    }
+
+
 }

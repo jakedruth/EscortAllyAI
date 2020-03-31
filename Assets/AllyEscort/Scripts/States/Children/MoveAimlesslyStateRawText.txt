@@ -1,0 +1,54 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace AllyEscort
+{
+    public class MoveAimlesslyState : MoveToPointState
+    {
+        public Vector3 centerArea = Vector3.zero;
+        public Vector3 sizeArea = new Vector3(5, 0, 5);
+
+        private float _waitTimer = 0;
+
+        internal override bool HandleInitialize()
+        {
+            maxSpeed = 5;
+            minSpeed = 1;
+            acceleration = 50;
+            slowDownToTarget = true;
+            slowDownRange = 1;
+
+            CalculatePath(GetRandomPoint());
+
+            return true;
+        }
+
+        internal override void HandleNullPath()
+        {
+            CalculatePath(GetRandomPoint());
+        }
+
+        internal override void HandleEmptyPath()
+        {
+            _waitTimer += Time.deltaTime;
+
+            if (_waitTimer > 1.0f)
+            {
+                _waitTimer = 0;
+                CalculatePath(GetRandomPoint());
+            }
+        }
+
+        internal Vector3 GetRandomPoint()
+        {
+            Vector3 point = centerArea;
+
+            point.x += Random.Range(-sizeArea.x, sizeArea.x);
+            point.y += Random.Range(-sizeArea.y, sizeArea.y);
+            point.z += Random.Range(-sizeArea.z, sizeArea.z);
+
+            return point;
+        }
+    }
+}

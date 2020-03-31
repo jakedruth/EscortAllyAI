@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using UnityEngine;
 
 namespace AllyEscort
@@ -16,7 +17,8 @@ namespace AllyEscort
     public class EscortAgent : MonoBehaviour
     {
         public CalculatePathComponent calculatePathComponent;
-        public List<Transition> transitions;
+        public string defaultState;
+        public List<State> states;
 
         public State CurrentState { get; private set; }
         public State NextState { get; private set; }
@@ -27,9 +29,18 @@ namespace AllyEscort
             if (calculatePathComponent == null)
             {
                 Debug.LogError($"<b><color=red>Error:</color></b> Calculate Path Component is null. This class must have access to one", this);
+                return;
             }
 
-            CurrentState = transitions[0].targetState;
+            if (states == null || states.Count == 0)
+            {
+                Debug.LogError($"<b><color=red>Error:</color></b> There are no states in this state machine", this);
+                return;
+            }
+
+            State firstState = GetState(defaultState);
+
+            CurrentState = firstState != null ? firstState : states[0];
             CurrentState.Initialize(this);
             CurrentPhase = StatePhases.ENTER;
         }
@@ -57,11 +68,15 @@ namespace AllyEscort
         /// <summary>
         /// Used to receive and handle commands.
         /// </summary>
-        /// <param name="trigger"></param>
-        /// <param name="args">The arguments that is needed to handle a command, like a point in world space or a speed parameter.</param>
-        public bool TransitionToState(string trigger, params object[] args)
+        /// <param name="stateName"></param>
+        /// <param name="args">The arguments that is needed to handle a command, like a point in world space or a currentSpeed parameter.</param>
+        public bool TransitionToState(string stateName, params object[] args)
         {
-            NextState = GetStateFromTrigger(trigger);
+            NextState = GetState(stateName);
+            if (NextState == null)
+            {
+                return false;
+            }
 
             // TODO: handle better if the same state. Good for now.
             if (CurrentState == NextState) 
@@ -76,114 +91,54 @@ namespace AllyEscort
             }
 
             return true;
-
-            //switch (commandType)
-            //{
-            //    case CommandType.TRIGGER_STATE:
-            //    {
-            //        if (args[0] is string transitionKey)
-            //        {
-            //            State nextState = TransitionToState(transitionKey);
-            //            object[] arguments = new object[args.Length - 1];
-            //            Array.Copy(args, 1, arguments, 0, args.Length);
-
-            //        }
-            //        break;
-            //    }
-
-            //    //case CommandType.MOVE_TO:
-            //    //{
-            //    //    if (args is Vector3 point)
-            //    //    {
-            //    //        List<Vector3> path = calculatePathComponent.GetPath(transform.position, point);
-            //    //        if (path != null)
-            //    //        {
-            //    //            //StopAllCoroutines();
-            //    //            //StartCoroutine(MoveAlongPath(path));
-            //    //        }
-            //    //    }
-            //    //    else
-            //    //    {
-            //    //        Debug.Log($"Error: command is not type Vector3. It is type: {args.GetType()}");
-            //    //    }
-
-            //    //    break;
-            //    //}
-            //    //case CommandType.WAIT:
-            //    //{
-            //    //    //StopAllCoroutines();
-            //    //    break;
-            //    //}
-            //    //case CommandType.SET_MAX_SPEED:
-            //    //{
-            //    //    if (args is float speed)
-            //    //    {
-            //    //        maxSpeed = speed;
-            //    //    }
-            //    //    else
-            //    //    {
-            //    //        Debug.Log($"Error: command is not type Float. It is type: {args.GetType()}");
-            //    //    }
-
-            //    //    break;
-            //    //}
-            //    //case CommandType.SET_MIN_SPEED:
-            //    //{
-            //    //    if (args is float speed)
-            //    //    {
-            //    //        minSpeed = speed;
-            //    //    }
-            //    //    else
-            //    //    {
-            //    //        Debug.Log($"Error: command is not type Float. It is type: {args.GetType()}");
-            //    //    }
-
-            //    //    break;
-            //    //}
-            //    default:
-            //    {
-            //        throw new ArgumentOutOfRangeException();
-            //    }
-            //}
         }
 
-        public State GetStateFromTrigger(string trigger)
+        public State GetState(string stateName)
         {
-            return transitions.First(t => t.key == trigger).targetState;
+            try
+            {
+                return states.First(s => s.name == stateName);
+            }
+            catch
+            {
+                Debug.LogError($"Could not find state {stateName}.");
+                return null;
+            }
+
         }
 
         private void TransitionToNextState()
         {
-            if (NextState != null)
-            {
-                CurrentState = NextState;
-                CurrentPhase = StatePhases.ENTER;
-            }
+            if (NextState == null) 
+                return;
+
+            CurrentState = NextState;
+            CurrentPhase = StatePhases.ENTER;
         }
 
         //private IEnumerator MoveAlongPath(List<Vector3> path)
         //{
         //    Vector3 pos = transform.position;
-        //    float speed = 0;
+        //    float currentSpeed = 0;
 
         //    while (path.Count > 0)
         //    {
         //        Vector3 delta = path[0] - pos;
         //        Vector3 dir = delta.normalized;
 
-        //        speed = Mathf.MoveTowards(speed, maxSpeed, acceleration * Time.deltaTime);
+        //        currentSpeed = Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration * Time.deltaTime);
 
         //        // Check to see if should slow down to the target
         //        if (slowDownToTarget && path.Count == 1 && delta.sqrMagnitude < slowDownRange * slowDownRange)
         //        {
         //            float fractionWithinRange = delta.magnitude / slowDownRange;
-        //            speed = fractionWithinRange * maxSpeed;
+        //            currentSpeed = fractionWithinRange * maxSpeed;
         //        }
 
-        //        if (speed < minSpeed)
-        //            speed = minSpeed;
+        //        if (currentSpeed < minSpeed)
+        //            currentSpeed = minSpeed;
 
-        //        Vector3 velocity = dir * speed;
+        //        Vector3 velocity = dir * currentSpeed;
         //        pos += velocity * Time.deltaTime;
 
         //        transform.position = pos;

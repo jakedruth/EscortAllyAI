@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class NavMeshCalculatePath : CalculatePathComponent
+public class NavMeshCalculatePath : AllyEscort.CalculatePathComponent
 {
     public float closestPointRange;
 

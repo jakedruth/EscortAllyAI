@@ -11,9 +11,9 @@ public class PoorPlayerController : MonoBehaviour
     {
         Vector3 velocity = Vector3.zero;
 
-        velocity.x += Input.GetAxis("Horizontal") * speed * Time.deltaTime;
-        velocity.z += Input.GetAxis("Vertical") * speed * Time.deltaTime;
+        velocity.x += Input.GetAxis("Horizontal") * speed;
+        velocity.z += Input.GetAxis("Vertical") * speed;
 
-        transform.position += velocity;
+        transform.position += velocity * Time.deltaTime;
     }
 }
