@@ -49,6 +49,7 @@ namespace AllyEscort
             //Debug.Log($"On Update State ({name})");
 
             HandleUpdate();
+            SetDebugCursorPosition();
         }
 
         public void OnExit()
@@ -57,6 +58,11 @@ namespace AllyEscort
 
             _isInitialized = false;
             HandleOnExit();
+        }
+
+        public virtual void SetDebugCursorPosition()
+        {
+            Owner.cursorTransform.position = Owner.transform.position;
         }
 
         internal abstract bool HandleInitialize();

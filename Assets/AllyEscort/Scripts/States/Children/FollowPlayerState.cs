@@ -62,6 +62,11 @@ public class FollowPlayerState : MoveToPointState
         }
     }
 
+    public override void SetDebugCursorPosition()
+    {
+        Owner.cursorTransform.position = Target.position;
+    }
+
     internal override void HandleNullPath()
     {
         return;

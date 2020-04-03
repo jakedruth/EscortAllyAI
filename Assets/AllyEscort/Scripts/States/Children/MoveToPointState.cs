@@ -69,8 +69,9 @@ namespace AllyEscort
             }
 
             // Move the Owner
-            pos += step;
-            Owner.transform.position = pos;
+            //pos += step;
+            //Owner.transform.position = pos;
+            Owner.CharacterController.Move(step);
 
             // Check to see if the Owner is at the target, or very close
             if (delta.sqrMagnitude <= 0.01f)
@@ -111,6 +112,12 @@ namespace AllyEscort
 
         internal override void HandleOnExit()
         { }
+
+        public override void SetDebugCursorPosition()
+        {
+            if(path.Count > 0)
+                Owner.cursorTransform.position = path[path.Count - 1];
+        }
 
         private float CalculatePathDistance()
         {

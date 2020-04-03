@@ -14,9 +14,15 @@ namespace AllyEscort
         public State targetState;
     }
 
+    [RequireComponent(typeof(CharacterController))]
     public class EscortAgent : MonoBehaviour
     {
+        public CharacterController CharacterController { get; private set; }
+        private Vector3 _verticalVelocity;
+
         public CalculatePathComponent calculatePathComponent;
+        public Transform cursorTransform;
+
         public string defaultState;
         public List<State> states;
 
@@ -26,6 +32,8 @@ namespace AllyEscort
 
         private void Awake()
         {
+            CharacterController = GetComponent<CharacterController>();
+
             if (calculatePathComponent == null)
             {
                 Debug.LogError($"<b><color=red>Error:</color></b> Calculate Path Component is null. This class must have access to one", this);
@@ -63,6 +71,13 @@ namespace AllyEscort
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            if (CharacterController.isGrounded)
+                _verticalVelocity = Vector3.zero;
+
+            _verticalVelocity += Physics.gravity * Time.deltaTime;
+
+            CharacterController.Move(_verticalVelocity * Time.deltaTime);
         }
 
         /// <summary>
@@ -114,6 +129,14 @@ namespace AllyEscort
 
             CurrentState = NextState;
             CurrentPhase = StatePhases.ENTER;
+        }
+
+        public void SetCursorPosition(Vector3 position)
+        {
+            if (cursorTransform != null)
+            {
+                cursorTransform.position = position;
+            }
         }
 
         //private IEnumerator MoveAlongPath(List<Vector3> path)
