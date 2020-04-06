@@ -41,7 +41,7 @@ namespace AllyEscort
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
-                escortAgent.TransitionToState("WalkAimlessly");
+                escortAgent.TransitionToState("MoveAimlessly");
             }
         }
     }

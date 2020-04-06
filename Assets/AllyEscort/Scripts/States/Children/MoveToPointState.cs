@@ -7,14 +7,6 @@ namespace AllyEscort
 {
     public class MoveToPointState : State
     {
-        [Header("Variables")]
-        public float maxSpeed;
-        public float minSpeed;
-        internal float currentSpeed;
-        public float acceleration;
-        public bool slowDownToTarget;
-        public float slowDownRange;
-
         internal List<Vector3> path;
 
         internal override bool HandleInitialize()
@@ -28,10 +20,7 @@ namespace AllyEscort
             return false;
         }
 
-        internal override void HandleOnEnter()
-        {
-            currentSpeed = minSpeed;
-        }
+        internal override void HandleOnEnter() { }
 
         internal override void HandleUpdate()
         {
@@ -47,68 +36,108 @@ namespace AllyEscort
                 return;
             }
 
-            // Set up variables
-            Vector3 pos = Owner.transform.position;
-            Vector3 targetPos = path[0];
-            Vector3 delta = targetPos - pos;
+            Vector3 target = path[0];
+            float distanceToGoal = CalculatePathDistance();
+            Vector3 displacement = Owner.MoveToPoint(target, distanceToGoal);
 
-            // Update the speed
-            currentSpeed = GetSpeed();
-
-            // Calculate the velocity
-            Vector3 velocity = delta.normalized * currentSpeed;
-
-            // Calculate the step the Owner will take this frame
-            Vector3 step = velocity * Time.deltaTime;
-
-            // If the step is greater than the distance
-            if (step.sqrMagnitude > delta.sqrMagnitude)
-            {
-                // set the step equal to the distance, so it does not over step
-                step = delta;
-            }
-
-            // Move the Owner
-            //pos += step;
-            //Owner.transform.position = pos;
-            Owner.CharacterController.Move(step);
-
-            // Check to see if the Owner is at the target, or very close
-            if (delta.sqrMagnitude <= 0.01f)
+            if (displacement.sqrMagnitude <= 0.005f)
             {
                 RemoveFirstPointInPath();
             }
+
+            //// Calculate Move Direction
+            //Vector3 pos = Owner.transform.position;
+            //Vector3 target = path[0];
+            //Vector3 delta = target - pos;
+            //MoveDirection = delta.normalized;
+
+            //// Check to see if should slow down
+            //if (slowDownToTarget)
+            //{
+            //    // get the displacement from the Owner to the end point
+            //    Vector3 displacement = path[path.Count - 1] - Owner.transform.position;
+
+            //    if (displacement.sqrMagnitude < slowDownRange * slowDownRange)
+            //    {
+            //        // Calculate the actual distance of the path
+            //        float distance = CalculatePathDistance();
+            //        if (distance <= slowDownRange)
+            //        {
+            //            // update the speed based on the range
+            //            //SpeedMultiplier = displacement.magnitude / slowDownRange;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        //SpeedMultiplier = 1;
+            //    }
+            //}
+            //else
+            //{
+            //    //SpeedMultiplier = 1;
+            //}
+
+
+            //// Check to see if the Owner is at the target, or very close
+            //if (/*SpeedMultiplier <= 0.001f ||*/ delta.sqrMagnitude <= 0.0015f)
+            //{
+            //    RemoveFirstPointInPath();
+            //}
+
+
+            ////// Update the speed
+            ////currentSpeed = GetSpeed();
+
+            ////// Calculate the velocity
+            ////Vector3 velocity = delta.normalized * currentSpeed;
+
+            ////// Calculate the step the Owner will take this frame
+            ////Vector3 step = velocity * Time.deltaTime;
+
+            ////// If the step is greater than the distance
+            ////if (step.sqrMagnitude > delta.sqrMagnitude)
+            ////{
+            ////    // set the step equal to the distance, so it does not over step
+            ////    step = delta;
+            ////}
+
+            ////// Move the Owner
+            //////pos += step;
+            //////Owner.transform.position = pos;
+            ////Owner.CharacterController.Move(step);
+
+
         }
 
-        internal float GetSpeed()
-        {
-            // Calculate the new speed
-            float speed =  Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration * Time.deltaTime);
+        //internal float GetSpeed()
+        //{
+        //    // Calculate the new speed
+        //    float speed =  Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration * Time.deltaTime);
 
-            if (slowDownToTarget)
-            {
-                // get the displacement from the Owner to the end point
-                Vector3 delta = path[path.Count - 1] - Owner.transform.position;
+        //    if (useSmoothStop)
+        //    {
+        //        // get the displacement from the Owner to the end point
+        //        Vector3 delta = path[path.Count - 1] - Owner.transform.position;
 
-                if (delta.sqrMagnitude < slowDownRange * slowDownRange)
-                {
-                    // Calculate the actual distance of the path
-                    float distance = CalculatePathDistance();
-                    if (distance <= slowDownRange)
-                    {
-                        // update the speed based on the range
-                        float fractionWithinRange = delta.magnitude / slowDownRange;
-                        speed = fractionWithinRange * maxSpeed;
-                    }
-                }
-            }
+        //        if (delta.sqrMagnitude < slowDownRange * slowDownRange)
+        //        {
+        //            // Calculate the actual distance of the path
+        //            float distance = CalculatePathDistance();
+        //            if (distance <= slowDownRange)
+        //            {
+        //                // update the speed based on the range
+        //                float fractionWithinRange = delta.magnitude / slowDownRange;
+        //                speed = fractionWithinRange * maxSpeed;
+        //            }
+        //        }
+        //    }
 
-            // Make sure the speed is never lower than the minimum speed
-            if (speed < minSpeed)
-                speed = minSpeed;
+        //    // Make sure the speed is never lower than the minimum speed
+        //    if (speed < minSpeed)
+        //        speed = minSpeed;
 
-            return speed;
-        }
+        //    return speed;
+        //}
 
         internal override void HandleOnExit()
         { }

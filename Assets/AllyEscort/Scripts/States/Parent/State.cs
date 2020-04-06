@@ -18,17 +18,26 @@ namespace AllyEscort
         public EscortAgent Owner { get; private set; }
         internal object[] Args { get; private set; }
         private bool _isInitialized;
+        internal Vector3 startingPosition;
+
+        [SerializeField]
+        public UseFloat overrideSpeed;
+        [SerializeField]
+        public UseFloat overrideAcceleration;
 
         public void Initialize(EscortAgent owner, params object[] args)
         {
             //Debug.Log($"Initializing state ({name})");
             Owner = owner;
             Args = args;
-            _isInitialized = true;
+            startingPosition = Owner.transform.position;
+
             if (!HandleInitialize())
             {
                 throw new ArgumentException($"Initialize for state {name}");
             }
+
+            _isInitialized = true;
         }
 
         public void OnEnter()
@@ -62,7 +71,7 @@ namespace AllyEscort
 
         public virtual void SetDebugCursorPosition()
         {
-            Owner.cursorTransform.position = Owner.transform.position;
+            Owner.cursorTransform.position = startingPosition;
         }
 
         internal abstract bool HandleInitialize();

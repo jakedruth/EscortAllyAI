@@ -18,13 +18,21 @@ namespace AllyEscort
     public class EscortAgent : MonoBehaviour
     {
         public CharacterController CharacterController { get; private set; }
-        private Vector3 _verticalVelocity;
 
         public CalculatePathComponent calculatePathComponent;
         public Transform cursorTransform;
 
+        public float maxSpeed;
+        public float minSpeed;
+        public float acceleration;
+        [ValueName("Range")]
+        public UseFloat useSmoothStopping;
+
+        public float Speed { get; private set; }
+
+        private Vector3 _verticalVelocity;
+
         public string defaultState;
-        public List<State> states;
 
         public State CurrentState { get; private set; }
         public State NextState { get; private set; }
@@ -40,15 +48,14 @@ namespace AllyEscort
                 return;
             }
 
-            if (states == null || states.Count == 0)
+            State firstState = GetState(defaultState);
+            if (firstState == null)
             {
-                Debug.LogError($"<b><color=red>Error:</color></b> There are no states in this state machine", this);
+                Debug.LogError($"<b><color=red>Error:</color></b> Could not find the default state, {defaultState}", this);
                 return;
             }
 
-            State firstState = GetState(defaultState);
-
-            CurrentState = firstState != null ? firstState : states[0];
+            CurrentState = firstState;
             CurrentState.Initialize(this);
             CurrentPhase = StatePhases.ENTER;
         }
@@ -78,6 +85,43 @@ namespace AllyEscort
             _verticalVelocity += Physics.gravity * Time.deltaTime;
 
             CharacterController.Move(_verticalVelocity * Time.deltaTime);
+        }
+
+        public Vector3 MoveToPoint(Vector3 target, float distanceToEnd = -1)
+        {
+            Vector3 pos = transform.position;
+            Vector3 delta = target - pos;
+            Vector3 direction = delta.normalized;
+
+            float targetSpeed = CurrentState.overrideSpeed.DetermineWhichValue(maxSpeed);
+            float targetAcceleration = CurrentState.overrideAcceleration.DetermineWhichValue(acceleration);
+
+            Speed = Mathf.MoveTowards(Speed, targetSpeed, targetAcceleration * Time.deltaTime);
+
+            if (useSmoothStopping)
+            {
+                float distance = (distanceToEnd < 0) ? delta.magnitude : distanceToEnd;
+                if (distance <= useSmoothStopping.value)
+                {
+                    float percentage = distance / useSmoothStopping.value;
+                    Speed = percentage * maxSpeed;
+                }
+            }
+
+            if (Speed < minSpeed)
+                Speed = minSpeed;
+
+            Vector3 velocity = direction * Speed;
+            Vector3 step = velocity * Time.deltaTime;
+
+            if (step.sqrMagnitude > delta.sqrMagnitude)
+            {
+                step = delta;
+            }
+
+            CharacterController.Move(step);
+
+            return delta;
         }
 
         /// <summary>
@@ -110,16 +154,10 @@ namespace AllyEscort
 
         public State GetState(string stateName)
         {
-            try
-            {
-                return states.First(s => s.name == stateName);
-            }
-            catch
-            {
-                Debug.LogError($"Could not find state {stateName}.");
-                return null;
-            }
+            State state = Resources.Load<State>($"States/{stateName}");
+            State instance = Instantiate(state);
 
+            return instance;
         }
 
         private void TransitionToNextState()
@@ -152,7 +190,7 @@ namespace AllyEscort
         //        currentSpeed = Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration * Time.deltaTime);
 
         //        // Check to see if should slow down to the target
-        //        if (slowDownToTarget && path.Count == 1 && delta.sqrMagnitude < slowDownRange * slowDownRange)
+        //        if (useSmoothStop && path.Count == 1 && delta.sqrMagnitude < slowDownRange * slowDownRange)
         //        {
         //            float fractionWithinRange = delta.magnitude / slowDownRange;
         //            currentSpeed = fractionWithinRange * maxSpeed;

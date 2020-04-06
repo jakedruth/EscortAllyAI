@@ -7,6 +7,10 @@ namespace AllyEscort
     public class InteractWithObjectState : MoveToPointState
     {
         private InteractableObject _interactableObject;
+        [SerializeField]
+        public float interactWaitTimer;
+        [SerializeField]
+        private float _timer;
 
         internal override bool HandleInitialize()
         {
@@ -20,10 +24,21 @@ namespace AllyEscort
             return false;
         }
 
-        internal override void HandleOnExit()
+        internal override void HandleOnEnter()
         {
-            base.HandleOnExit();
-            _interactableObject.Interact();
+            base.HandleOnEnter();
+
+            _timer = 0;
+        }
+
+        internal override void HandleEmptyPath()
+        {
+            _timer += Time.deltaTime;
+            if (_timer >= interactWaitTimer)
+            {
+                base.HandleEmptyPath();
+                _interactableObject.Interact();
+            }
         }
     }
 }

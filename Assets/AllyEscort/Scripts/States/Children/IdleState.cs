@@ -15,7 +15,9 @@ namespace AllyEscort
         { }
 
         internal override void HandleUpdate()
-        { }
+        {
+            Owner.MoveToPoint(startingPosition);
+        }
 
         internal override void HandleOnExit()
         { }
