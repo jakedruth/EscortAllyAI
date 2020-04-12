@@ -12,7 +12,7 @@ namespace AllyEscort
         [SerializeField]
         private float _timer;
 
-        internal override bool HandleInitialize()
+        protected override bool HandleInitialize()
         {
             if (Args[0] is InteractableObject interactable)
             {
@@ -24,14 +24,17 @@ namespace AllyEscort
             return false;
         }
 
-        internal override void HandleOnEnter()
+        protected override void HandleOnEnter()
         {
             base.HandleOnEnter();
 
             _timer = 0;
         }
 
-        internal override void HandleEmptyPath()
+        /// <summary>
+        /// While the path is empty, update a timer to when the interaction with the object occurs.
+        /// </summary>
+        protected override void HandleEmptyPath()
         {
             _timer += Time.deltaTime;
             if (_timer >= interactWaitTimer)

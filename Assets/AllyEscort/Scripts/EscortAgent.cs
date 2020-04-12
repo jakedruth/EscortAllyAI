@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AllyEscort
 {
@@ -19,7 +20,15 @@ namespace AllyEscort
     {
         public CharacterController CharacterController { get; private set; }
 
+        public static bool NullTest(object testObject)
+        {
+            return testObject == null;
+        }
+
+        [NullWarning("This component is required for calculating paths.")]
         public CalculatePathComponent calculatePathComponent;
+
+        [NullWarning]
         public Transform cursorTransform;
 
         public float maxSpeed;
@@ -32,6 +41,7 @@ namespace AllyEscort
 
         private Vector3 _verticalVelocity;
 
+        [NullWarning("The state must also be located in Resources/States")]
         public string defaultState;
 
         public State CurrentState { get; private set; }
@@ -55,13 +65,15 @@ namespace AllyEscort
                 return;
             }
 
+            // initialize the first state
             CurrentState = firstState;
             CurrentState.Initialize(this);
             CurrentPhase = StatePhases.ENTER;
         }
 
-        void Update()
+        private void Update()
         {
+            // update the current state based on the phase of the state
             switch (CurrentPhase)
             {
                 case StatePhases.ENTER:
@@ -79,6 +91,7 @@ namespace AllyEscort
                     throw new ArgumentOutOfRangeException();
             }
 
+            // Apply gravity
             if (CharacterController.isGrounded)
                 _verticalVelocity = Vector3.zero;
 
@@ -87,48 +100,67 @@ namespace AllyEscort
             CharacterController.Move(_verticalVelocity * Time.deltaTime);
         }
 
+        /// <summary>
+        /// Used by the states to move the Escort Agent
+        /// </summary>
+        /// <param name="target">The point in world space to move towards</param>
+        /// <param name="distanceToEnd">Override the distance to the target, if necessary. If less than 0,
+        ///     the distance will be calculated to the target. It is necessary to override the distance
+        ///     if the target being supplied is not the end goal, like a path.
+        /// </param>
+        /// <returns>return the displacement to the target</returns>
         public Vector3 MoveToPoint(Vector3 target, float distanceToEnd = -1)
         {
+            // set up variables
             Vector3 pos = transform.position;
             Vector3 delta = target - pos;
             Vector3 direction = delta.normalized;
 
+            // calculate speed and acceleration. Can be overloaded by a state
             float targetSpeed = CurrentState.overrideSpeed.DetermineWhichValue(maxSpeed);
             float targetAcceleration = CurrentState.overrideAcceleration.DetermineWhichValue(acceleration);
-
             Speed = Mathf.MoveTowards(Speed, targetSpeed, targetAcceleration * Time.deltaTime);
 
+            // Determine if slowing down needs to apply
             if (useSmoothStopping)
             {
+                // get the distance value
                 float distance = (distanceToEnd < 0) ? delta.magnitude : distanceToEnd;
                 if (distance <= useSmoothStopping.value)
                 {
+                    // adjust the speed based on the percentage to the target
                     float percentage = distance / useSmoothStopping.value;
                     Speed = percentage * maxSpeed;
                 }
             }
 
+            // Make sure the speed never drops below the minimum value
             if (Speed < minSpeed)
                 Speed = minSpeed;
 
+            // calcualte velocity
             Vector3 velocity = direction * Speed;
             Vector3 step = velocity * Time.deltaTime;
 
+            // if the step in one frame is larger than the distance to the target,
+            // prevent the Escort Agent from over stepping
             if (step.sqrMagnitude > delta.sqrMagnitude)
             {
                 step = delta;
             }
 
+            // Move the Escort Agent via the Character Controller
             CharacterController.Move(step);
 
+            // return the displacement to the target
             return delta;
         }
 
         /// <summary>
-        /// Used to receive and handle commands.
+        /// Used to transition to another state
         /// </summary>
-        /// <param name="stateName"></param>
-        /// <param name="args">The arguments that is needed to handle a command, like a point in world space or a currentSpeed parameter.</param>
+        /// <param name="stateName">The name of the state to transition too</param>
+        /// <param name="args">The arguments that is needed to handle a command, like a point in world space or a transform to follow.</param>
         public bool TransitionToState(string stateName, params object[] args)
         {
             NextState = GetState(stateName);
@@ -152,14 +184,25 @@ namespace AllyEscort
             return true;
         }
 
+        /// <summary>
+        /// Get a state
+        /// </summary>
+        /// <param name="stateName">The name of the state to get</param>
+        /// <returns></returns>
         public State GetState(string stateName)
         {
             State state = Resources.Load<State>($"States/{stateName}");
+            if (state == null)
+                return null;
+
             State instance = Instantiate(state);
 
             return instance;
         }
 
+        /// <summary>
+        /// Called when a state exits and need to load the next state
+        /// </summary>
         private void TransitionToNextState()
         {
             if (NextState == null) 
@@ -167,8 +210,13 @@ namespace AllyEscort
 
             CurrentState = NextState;
             CurrentPhase = StatePhases.ENTER;
+            NextState = null;
         }
 
+        /// <summary>
+        /// Used for a state debugging. Allows the state to say where the state is moving towards
+        /// </summary>
+        /// <param name="position">Moves the cursor to the position.</param>
         public void SetCursorPosition(Vector3 position)
         {
             if (cursorTransform != null)
@@ -176,49 +224,5 @@ namespace AllyEscort
                 cursorTransform.position = position;
             }
         }
-
-        //private IEnumerator MoveAlongPath(List<Vector3> path)
-        //{
-        //    Vector3 pos = transform.position;
-        //    float currentSpeed = 0;
-
-        //    while (path.Count > 0)
-        //    {
-        //        Vector3 delta = path[0] - pos;
-        //        Vector3 dir = delta.normalized;
-
-        //        currentSpeed = Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration * Time.deltaTime);
-
-        //        // Check to see if should slow down to the target
-        //        if (useSmoothStop && path.Count == 1 && delta.sqrMagnitude < slowDownRange * slowDownRange)
-        //        {
-        //            float fractionWithinRange = delta.magnitude / slowDownRange;
-        //            currentSpeed = fractionWithinRange * maxSpeed;
-        //        }
-
-        //        if (currentSpeed < minSpeed)
-        //            currentSpeed = minSpeed;
-
-        //        Vector3 velocity = dir * currentSpeed;
-        //        pos += velocity * Time.deltaTime;
-
-        //        transform.position = pos;
-
-        //        if (delta.sqrMagnitude <= 0.01f)
-        //        {
-        //            path.RemoveAt(0);
-        //        }
-
-        //        yield return null;
-        //    }
-        //}
-
-        //private void DrawPathDebug(IReadOnlyList<Vector3> path)
-        //{
-        //    for (int i = 0; i < path.Count - 1; i++)
-        //    {
-        //        Debug.DrawLine(path[i], path[i + 1], Color.blue, 5.0f, false);
-        //    }
-        //}
     }
 }

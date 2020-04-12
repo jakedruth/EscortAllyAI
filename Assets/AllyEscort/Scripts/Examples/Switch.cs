@@ -2,29 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Switch : MonoBehaviour
+namespace AllyEscort.Example
 {
-    public MeshRenderer meshRenderer;
-    public Material switchOffMaterial;
-    public Material switchOnMaterial;
-
-    private bool _isOn;
-    public bool IsOn
+    public class Switch : MonoBehaviour
     {
-        get { return _isOn; }
-        set
+        public MeshRenderer meshRenderer;
+        public Material switchOffMaterial;
+        public Material switchOnMaterial;
+
+        public bool IsOn { get; private set; }
+
+        /// <summary>
+        /// Public toggle to the switch
+        /// </summary>
+        [ContextMenu("Toggle the switch")]
+        public void ToggleSwitch()
         {
-            if (_isOn == value)
-                return;
-            _isOn = value;
-
-            meshRenderer.material = _isOn ? switchOnMaterial : switchOffMaterial;
+            SetSwitch(!IsOn);
         }
-    }
 
-    [ContextMenu("Toggle the switch")]
-    public void ToggleSwitch()
-    {
-        IsOn = !IsOn;
+        /// <summary>
+        /// Set the switch to on or off
+        /// </summary>
+        /// <param name="value">Set the switch</param>
+        public void SetSwitch(bool value)
+        {
+            if(IsOn == value)
+                return;
+            IsOn = value;
+
+            // Change a material based on if the switch is on or off
+            meshRenderer.material = IsOn ? switchOnMaterial : switchOffMaterial;
+
+            // This class could be used to do a multitude of other things like open a door, lower a bridge, turn off a light, ect.
+        }
     }
 }

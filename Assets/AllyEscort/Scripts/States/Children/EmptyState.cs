@@ -4,22 +4,24 @@ using UnityEngine;
 
 namespace AllyEscort
 {
-    
+    /// <summary>
+    /// Used for an empty state. This does nothing at all.
+    /// </summary>
     [CreateAssetMenu(fileName = "New State", menuName = "Ally Escort/Create New State", order = 2)]
     public class EmptyState : State
     {
-        internal override bool HandleInitialize()
+        protected override bool HandleInitialize()
         {
             return true;
         }
 
-        internal override void HandleOnEnter()
+        protected override void HandleOnEnter()
         { }
 
-        internal override void HandleUpdate()
+        protected override void HandleUpdate()
         { }
 
-        internal override void HandleOnExit()
+        protected override void HandleOnExit()
         { }
     }
 }

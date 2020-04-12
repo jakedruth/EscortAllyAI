@@ -2,18 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PoorPlayerController : MonoBehaviour
+namespace AllyEscort.Example
 {
-    public float speed;
-
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// This is intentionally a very bad player controller. The user should implement their own user input class.
+    /// This class exist so the example scene gives a better use-case example.
+    /// </summary>
+    public class PoorPlayerController : MonoBehaviour
     {
-        Vector3 velocity = Vector3.zero;
+        public float speed;
 
-        velocity.x += Input.GetAxis("Horizontal") * speed;
-        velocity.z += Input.GetAxis("Vertical") * speed;
+        // Update is called once per frame
+        void Update()
+        {
+            Vector3 velocity = Vector3.zero;
 
-        transform.position += velocity * Time.deltaTime;
+            velocity.x += Input.GetAxis("Horizontal") * speed;
+            velocity.z += Input.GetAxis("Vertical") * speed;
+
+            transform.position += velocity * Time.deltaTime;
+        }
     }
 }

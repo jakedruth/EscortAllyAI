@@ -25,6 +25,11 @@ namespace AllyEscort
         [SerializeField]
         public UseFloat overrideAcceleration;
 
+        /// <summary>
+        /// Used to initialize the current state
+        /// </summary>
+        /// <param name="owner">Used to keep reference to the escort agent that owns this state</param>
+        /// <param name="args">Any arguments that need to be passed on to the state for initializing</param>
         public void Initialize(EscortAgent owner, params object[] args)
         {
             //Debug.Log($"Initializing state ({name})");
@@ -32,6 +37,7 @@ namespace AllyEscort
             Args = args;
             startingPosition = Owner.transform.position;
 
+            // Check to see if the inheriting class successfully initialized
             if (!HandleInitialize())
             {
                 throw new ArgumentException($"Initialize for state {name}");
@@ -40,6 +46,9 @@ namespace AllyEscort
             _isInitialized = true;
         }
 
+        /// <summary>
+        /// Called when entering the state for the first time
+        /// </summary>
         public void OnEnter()
         {
             //Debug.Log($"On Enter State ({name})");
@@ -53,6 +62,9 @@ namespace AllyEscort
             HandleOnEnter();
         }
 
+        /// <summary>
+        /// Called to update the state every frame
+        /// </summary>
         public void Update()
         {
             //Debug.Log($"On Update State ({name})");
@@ -61,6 +73,10 @@ namespace AllyEscort
             SetDebugCursorPosition();
         }
 
+
+        /// <summary>
+        /// Called when exiting the state
+        /// </summary>
         public void OnExit()
         {
             //Debug.Log($"On Exit State ({name})");
@@ -69,14 +85,33 @@ namespace AllyEscort
             HandleOnExit();
         }
 
+        /// <summary>
+        /// Set the debug cursor's position
+        /// </summary>
         public virtual void SetDebugCursorPosition()
         {
             Owner.cursorTransform.position = startingPosition;
         }
 
-        internal abstract bool HandleInitialize();
-        internal abstract void HandleOnEnter();
-        internal abstract void HandleUpdate();
-        internal abstract void HandleOnExit();
+        /// <summary>
+        /// Initialize function that must be overloaded by inherited classes
+        /// </summary>
+        /// <returns>Return <code>true</code> if initialized properly</returns>
+        protected abstract bool HandleInitialize();
+
+        /// <summary>
+        /// On Enter function that must be overloaded by inherited classes
+        /// </summary>
+        protected abstract void HandleOnEnter();
+
+        /// <summary>
+        /// Update function that must be overloaded by inherited classes
+        /// </summary>
+        protected abstract void HandleUpdate();
+
+        /// <summary>
+        /// On Exit function that must be overloaded by inherited classes
+        /// </summary>
+        protected abstract void HandleOnExit();
     }
 }

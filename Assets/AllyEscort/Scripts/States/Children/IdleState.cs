@@ -6,20 +6,21 @@ namespace AllyEscort
 {
     public class IdleState : State
     {
-        internal override bool HandleInitialize()
+        protected override bool HandleInitialize()
         {
             return true;
         }
 
-        internal override void HandleOnEnter()
+        protected override void HandleOnEnter()
         { }
 
-        internal override void HandleUpdate()
+        protected override void HandleUpdate()
         {
+            // make sure the Owner does not move
             Owner.MoveToPoint(startingPosition);
         }
 
-        internal override void HandleOnExit()
+        protected override void HandleOnExit()
         { }
     }
 }

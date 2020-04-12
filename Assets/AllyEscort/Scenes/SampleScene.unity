@@ -1485,7 +1485,7 @@ GameObject:
   - component: {fileID: 1574135521}
   - component: {fileID: 1574135520}
   m_Layer: 0
-  m_Name: AllyAgent
+  m_Name: AI (AllyAgent)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1526,7 +1526,7 @@ MonoBehaviour:
   useSmoothStopping:
     use: 1
     value: 0.75
-  defaultState: idle
+  defaultState: Idle
 --- !u!143 &1574135521
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1651,7 +1651,7 @@ GameObject:
   - component: {fileID: 1936479699}
   - component: {fileID: 1936479701}
   m_Layer: 0
-  m_Name: AllyMessenger
+  m_Name: Player (AllyMessenger)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -11,8 +11,9 @@ public class FollowPlayerState : MoveToPointState
 
     public Transform Target { get; private set; }
 
-    internal override bool HandleInitialize()
+    protected override bool HandleInitialize()
     {
+        // check to see if the first argument is a Transform 
         if (Args[0] is Transform transform)
         {
             Target = transform;
@@ -22,8 +23,10 @@ public class FollowPlayerState : MoveToPointState
 
         return false;
     }
-
-    internal override void HandleUpdate()
+    /// <summary>
+    /// In addition to the base movement, determine if the target has moved a substantial amount from the end point and calculate a new path
+    /// </summary>
+    protected override void HandleUpdate()
     {
         base.HandleUpdate();
 
@@ -39,7 +42,12 @@ public class FollowPlayerState : MoveToPointState
         }
     }
 
-    internal override void CalculatePath(Vector3 targetPoint)
+    /// <summary>
+    /// The end point of the path is the target. This adjusts the last point in the path
+    /// so it is {targetDistance} units away form the calculated targetPoint
+    /// </summary>
+    /// <param name="targetPoint">The end point of the path</param>
+    protected override void CalculatePath(Vector3 targetPoint)
     {
         base.CalculatePath(targetPoint);
 
@@ -62,17 +70,26 @@ public class FollowPlayerState : MoveToPointState
         }
     }
 
+    /// <summary>
+    /// Override the point to the target's position, not the last point in the path
+    /// </summary>
     public override void SetDebugCursorPosition()
     {
         Owner.cursorTransform.position = Target.position;
     }
 
-    internal override void HandleNullPath()
+    /// <summary>
+    /// If the path is null, do nothing and wait until a new path is calculated
+    /// </summary>
+    protected override void HandleNullPath()
     {
         return;
     }
 
-    internal override void HandleEmptyPath()
+    /// <summary>
+    /// If the path is empty, calculate a new path
+    /// </summary>
+    protected override void HandleEmptyPath()
     {
         CalculatePath(Target.position);
         return;

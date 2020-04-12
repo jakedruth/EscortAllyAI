@@ -2,16 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AllyEscort
+
+namespace AllyEscort.Example
 {
+    /// <summary>
+    /// This is an example class on how to send messages to an EscortAgent
+    /// </summary>
     public class EscortMessenger : MonoBehaviour
     {
         public EscortAgent escortAgent;
 
-        //private bool _isRunning = true;
-
         void Update()
         {
+            // How to get a point in space from the mouse
             if (Input.GetMouseButtonDown(0))
             { 
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -28,6 +31,8 @@ namespace AllyEscort
                     }
                 }
             }
+
+            // how to send transitions via key presses or mouse presses
 
             if (Input.GetMouseButtonDown(1))
             {
