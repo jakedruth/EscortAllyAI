@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using AllyEscort;
 using UnityEngine;
 
-public class FollowPlayerState : MoveToPointState
+public class FollowTransformState : MoveToPointState
 {
     [Header("Follow Variables")]
     public float targetDistance;
@@ -32,7 +32,7 @@ public class FollowPlayerState : MoveToPointState
 
         // set up variables
         Vector3 targetPos = Target.position;
-        Vector3 pathEndPoint = path.Count > 0 ? path[path.Count - 1] : Owner.transform.position;
+        Vector3 pathEndPoint = path.Count > 0 ? path[path.Count - 1] : Position;
         Vector3 delta = targetPos - pathEndPoint;
 
         // Check to see if the target has moved too far
@@ -52,28 +52,15 @@ public class FollowPlayerState : MoveToPointState
         base.CalculatePath(targetPoint);
 
         // Move the last point closer to the start of the path based on targetDistance
-        float remainingDistance = targetDistance;
-        for (int i = path.Count - 1; i >= 0; i--)
-        {
-            Vector3 a = (i == 0) ? Owner.transform.position : path[i - 1];
-            Vector3 b = path[i];
-            Vector3 delta = b - a;
-            float distance = delta.magnitude;
-            if (distance > remainingDistance)
-            {
-                path[i] = Vector3.MoveTowards(b, a, remainingDistance);
-                break;
-            }
-
-            remainingDistance -= distance;
-            path.RemoveAt(i);
-        }
+        ShortenPath(targetDistance);
     }
+
+
 
     /// <summary>
     /// Override the point to the target's position, not the last point in the path
     /// </summary>
-    public override void SetDebugCursorPosition()
+    public override void HandleDebugCursorPosition()
     {
         Owner.cursorTransform.position = Target.position;
     }

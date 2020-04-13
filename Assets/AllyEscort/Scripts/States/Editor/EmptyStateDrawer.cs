@@ -30,19 +30,16 @@ namespace AllyEscort
                 string text = File.ReadAllText(path);
 
                 // Prompt a save file dialog and get a path to it
-                string newFilePath = EditorUtility.SaveFilePanel("Create New State Script",
-                    path, 
-                    Path.GetFileNameWithoutExtension(path) + "State",
-                    "cs");
+                string newFilePath = EditorUtility.SaveFilePanel("Create New State Script", path, 
+                    $"{Path.GetFileNameWithoutExtension(path)}State", "cs");
                 
                 // null if user clicks cancel
                 if (newFilePath != null)
                 {
                     string fileName = Path.GetFileNameWithoutExtension(newFilePath);
-
-                    // create file from template
-                    File.WriteAllText(newFilePath,
-                        $@"using System.Collections;
+                    string newFileText = 
+// Fancy notation for a interpolated verbatim string literal
+$@"using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -50,21 +47,23 @@ namespace AllyEscort
 {{
     public class {fileName} : State
     {{
-        internal override bool HandleInitialize()
+        protected override bool HandleInitialize()
         {{
             return true;
         }}
 
-        internal override void HandleOnEnter()
+        protected override void HandleOnEnter()
         {{ }}
 
-        internal override void HandleUpdate()
+        protected override void HandleUpdate()
         {{ }}
 
-        internal override void HandleOnExit()
+        protected override void HandleOnExit()
         {{ }}
     }}
-}}");
+}}";
+                    // create file from template
+                    File.WriteAllText(newFilePath, newFileText);
                     
                     // Used to reload the editor
                     AssetDatabase.SaveAssets();

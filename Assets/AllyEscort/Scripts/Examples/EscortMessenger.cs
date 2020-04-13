@@ -27,7 +27,18 @@ namespace AllyEscort.Example
                     }
                     else
                     {
-                        escortAgent.TransitionToState("MoveToPoint", hit.point);
+                        if (Input.GetKey(KeyCode.LeftShift))
+                        {
+                            escortAgent.TransitionToState("SprintToPoint", hit.point);
+                        }
+                        else if (Input.GetKey(KeyCode.LeftControl))
+                        {
+                            escortAgent.TransitionToState("SneakToPoint", hit.point);
+                        }
+                        else
+                        {
+                            escortAgent.TransitionToState("WalkToPoint", hit.point);
+                        }
                     }
                 }
             }
@@ -41,7 +52,7 @@ namespace AllyEscort.Example
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                escortAgent.TransitionToState("FollowPlayer", transform);
+                escortAgent.TransitionToState("FollowTransform", transform);
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha1))

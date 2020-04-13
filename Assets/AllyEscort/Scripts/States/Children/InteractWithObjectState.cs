@@ -36,6 +36,7 @@ namespace AllyEscort
         /// </summary>
         protected override void HandleEmptyPath()
         {
+            Input = Vector3.zero;
             _timer += Time.deltaTime;
             if (_timer >= interactWaitTimer)
             {

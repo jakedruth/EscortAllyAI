@@ -15,10 +15,27 @@ namespace AllyEscort
 
     public abstract class State : ScriptableObject
     {
+        /// <summary>
+        /// The owner of this state
+        /// </summary>
         public EscortAgent Owner { get; private set; }
-        internal object[] Args { get; private set; }
+
+        /// <summary>
+        /// The position of the Owner's Transform
+        /// </summary>
+        protected Vector3 Position
+        {
+            get { return Owner.transform.position; }
+            set { Owner.transform.position = value; }
+        }
+
+        /// <summary>
+        /// The Arguments received from initializing
+        /// </summary>
+        protected object[] Args { get; private set; }
         private bool _isInitialized;
-        internal Vector3 startingPosition;
+        protected Vector3 startingPosition;
+        public Vector3 Input { get; protected set; }
 
         [SerializeField]
         public UseFloat overrideSpeed;
@@ -32,9 +49,10 @@ namespace AllyEscort
         /// <param name="args">Any arguments that need to be passed on to the state for initializing</param>
         public void Initialize(EscortAgent owner, params object[] args)
         {
-            //Debug.Log($"Initializing state ({name})");
+            Debug.Log($"Initializing state ({name})");
             Owner = owner;
             Args = args;
+
             startingPosition = Owner.transform.position;
 
             // Check to see if the inheriting class successfully initialized
@@ -70,7 +88,7 @@ namespace AllyEscort
             //Debug.Log($"On Update State ({name})");
 
             HandleUpdate();
-            SetDebugCursorPosition();
+            HandleDebugCursorPosition();
         }
 
 
@@ -88,7 +106,7 @@ namespace AllyEscort
         /// <summary>
         /// Set the debug cursor's position
         /// </summary>
-        public virtual void SetDebugCursorPosition()
+        public virtual void HandleDebugCursorPosition()
         {
             Owner.cursorTransform.position = startingPosition;
         }

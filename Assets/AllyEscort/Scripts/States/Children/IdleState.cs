@@ -12,15 +12,17 @@ namespace AllyEscort
         }
 
         protected override void HandleOnEnter()
-        { }
+        { Input = Vector3.zero; }
 
         protected override void HandleUpdate()
-        {
-            // make sure the Owner does not move
-            Owner.MoveToPoint(startingPosition);
-        }
+        { }
 
         protected override void HandleOnExit()
         { }
+
+        public override void HandleDebugCursorPosition()
+        {
+            Owner.cursorTransform.position = Position;
+        }
     }
 }

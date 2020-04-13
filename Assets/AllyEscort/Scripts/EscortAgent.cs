@@ -32,14 +32,21 @@ namespace AllyEscort
         public Transform cursorTransform;
 
         public float maxSpeed;
-        public float minSpeed;
         public float acceleration;
         [ValueName("Range")]
         public UseFloat useSmoothStopping;
 
-        public float Speed { get; private set; }
-
+        private Vector3 _groundVelocity;
         private Vector3 _verticalVelocity;
+
+        public float TargetSpeed
+        {
+            get { return CurrentState.overrideSpeed.DetermineWhichValue(maxSpeed); }
+        }
+        public float TargetAcceleration
+        {
+            get { return CurrentState.overrideAcceleration.DetermineWhichValue(acceleration); }
+        }
 
         [NullWarning("The state must also be located in Resources/States")]
         public string defaultState;
@@ -91,69 +98,22 @@ namespace AllyEscort
                     throw new ArgumentOutOfRangeException();
             }
 
+            // Get the state's input
+            Vector3 input = CurrentState.Input;
+
+            // calculate the target velocity
+            Vector3 targetVelocity = input * TargetSpeed;
+
+            // set the ground velocity
+            _groundVelocity = Vector3.MoveTowards(_groundVelocity, targetVelocity, TargetAcceleration * Time.deltaTime);
+            
             // Apply gravity
             if (CharacterController.isGrounded)
                 _verticalVelocity = Vector3.zero;
 
             _verticalVelocity += Physics.gravity * Time.deltaTime;
 
-            CharacterController.Move(_verticalVelocity * Time.deltaTime);
-        }
-
-        /// <summary>
-        /// Used by the states to move the Escort Agent
-        /// </summary>
-        /// <param name="target">The point in world space to move towards</param>
-        /// <param name="distanceToEnd">Override the distance to the target, if necessary. If less than 0,
-        ///     the distance will be calculated to the target. It is necessary to override the distance
-        ///     if the target being supplied is not the end goal, like a path.
-        /// </param>
-        /// <returns>return the displacement to the target</returns>
-        public Vector3 MoveToPoint(Vector3 target, float distanceToEnd = -1)
-        {
-            // set up variables
-            Vector3 pos = transform.position;
-            Vector3 delta = target - pos;
-            Vector3 direction = delta.normalized;
-
-            // calculate speed and acceleration. Can be overloaded by a state
-            float targetSpeed = CurrentState.overrideSpeed.DetermineWhichValue(maxSpeed);
-            float targetAcceleration = CurrentState.overrideAcceleration.DetermineWhichValue(acceleration);
-            Speed = Mathf.MoveTowards(Speed, targetSpeed, targetAcceleration * Time.deltaTime);
-
-            // Determine if slowing down needs to apply
-            if (useSmoothStopping)
-            {
-                // get the distance value
-                float distance = (distanceToEnd < 0) ? delta.magnitude : distanceToEnd;
-                if (distance <= useSmoothStopping.value)
-                {
-                    // adjust the speed based on the percentage to the target
-                    float percentage = distance / useSmoothStopping.value;
-                    Speed = percentage * maxSpeed;
-                }
-            }
-
-            // Make sure the speed never drops below the minimum value
-            if (Speed < minSpeed)
-                Speed = minSpeed;
-
-            // calcualte velocity
-            Vector3 velocity = direction * Speed;
-            Vector3 step = velocity * Time.deltaTime;
-
-            // if the step in one frame is larger than the distance to the target,
-            // prevent the Escort Agent from over stepping
-            if (step.sqrMagnitude > delta.sqrMagnitude)
-            {
-                step = delta;
-            }
-
-            // Move the Escort Agent via the Character Controller
-            CharacterController.Move(step);
-
-            // return the displacement to the target
-            return delta;
+            CharacterController.Move((_groundVelocity + _verticalVelocity) * Time.deltaTime);
         }
 
         /// <summary>
@@ -196,7 +156,7 @@ namespace AllyEscort
                 return null;
 
             State instance = Instantiate(state);
-
+            instance.name = stateName;
             return instance;
         }
 

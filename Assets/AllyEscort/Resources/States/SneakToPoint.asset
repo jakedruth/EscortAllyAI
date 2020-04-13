@@ -10,16 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3c5aee7bbe0a6494b9005b81eaea2601, type: 3}
-  m_Name: MoveToPoint
+  m_Name: SneakToPoint
   m_EditorClassIdentifier: 
   overrideSpeed:
-    use: 0
-    value: 0
+    use: 1
+    value: 2.5
   overrideAcceleration:
     use: 0
     value: 0
-  maxSpeed: 5
-  minSpeed: 1
-  acceleration: 50
-  slowDownToTarget: 1
-  slowDownRange: 1

@@ -106,15 +106,15 @@ NavMeshSettings:
   m_BuildSettings:
     serializedVersion: 2
     agentTypeID: 0
-    agentRadius: 0.25
+    agentRadius: 0.35
     agentHeight: 1
     agentSlope: 45
-    agentClimb: 0.13
+    agentClimb: 0.3
     ledgeDropHeight: 3
     maxJumpAcrossDistance: 0
     minRegionArea: 2
     manualCellSize: 0
-    cellSize: 0.083333336
+    cellSize: 0.11666667
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
@@ -1521,7 +1521,6 @@ MonoBehaviour:
   calculatePathComponent: {fileID: 811288250}
   cursorTransform: {fileID: 1062353175}
   maxSpeed: 5
-  minSpeed: 0.25
   acceleration: 50
   useSmoothStopping:
     use: 1
