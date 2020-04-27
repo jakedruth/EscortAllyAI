@@ -14,7 +14,7 @@ namespace AllyEscort.Example
         /// <summary>
         /// Finds the closest point on the NavMesh in range of this value
         /// </summary>
-        public float closestPointRange;
+        public float closestPointRange = 2f;
 
         /// <summary>
         /// Get a path between two points

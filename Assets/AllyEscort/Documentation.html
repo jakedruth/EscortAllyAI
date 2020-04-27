@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AI Ally Escort Documentation</title>
+    <style>
+        body {
+            /* margin-bottom set to 77vh so the table of contents can properly scroll*/
+            margin: 15px auto 77vh auto;
+            max-width: 860px;
+        }
+
+        /* 910 = 860 (max-width of body) + 25 * 2 (margin-left + margin-right)*/
+        @media only screen and (max-width: 910px) {
+            body {
+                margin-left: 25px;
+                margin-right: 25px;
+            }
+        }
+
+        p {
+            margin: 12px 0;
+        }
+
+        h1,
+        h2,
+        h3 {
+            padding-top: 10px;
+        }
+
+        h1,
+        h2 {
+            border-bottom: solid 2px #00000022;
+        }
+        
+        h4 {
+            padding-top: 100px;
+        }
+
+        ul li {
+            list-style: none;
+        }
+
+        li a {
+            color: blue;
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1 id='title'>AI Ally Escort Documentation</h1>
+    <p>AI Ally Escort is an AI tool to allow a designer to integrate a simple to use AI State machine that receives commands from a player, instead of an AI that that responds to the environment. Some example commands a player can send that are already implemented are: Move to Point, Wait There/ Here, Follow Me, and Interact with an object.</p>
+    <p>This tool is used to make it easier to implement escort missions in video games. An example is when you have a friendly NPC that you need to escort from A to B, with obstacles in the way. Maybe there are guards that will capture the player or the friendly NPC. Maybe the friendly NPC needs to pull switches so the player can advance. Maybe the player wants to deal with all the enemies while having the friendly NPC sits still in the corner? This tool can be used for these scenarios and many more. This was created from the ground up with customizability in mind.</p>
+    <h2>Table of Contents</h2>
+    <ul>
+        <li>
+            <a href="#HowToUse">How To Use</a>
+            <ul>
+                <li><a href="#GettingStarted">Getting Started</a></li>
+                <li><a href="#UnderstandingStates">Understanding States</a></li>
+                <li><a href="#CreatingStates">Creating Custom States</a></li>
+            </ul>
+        </li>
+        <li><a href="#Contact">Contact Information</a></li>
+        <li><a href="#Acknowledgements">Acknowledgments</a></li>
+    </ul>
+
+    <h2 id='HowToUse'>How To Use</h2>
+
+    <h3 id='GettingStarted'>Getting Started</h3>
+    <p>Once this Asset has been imported into your project, there are a few steps to get started. First there has to be a scene that contains some form of path finding. The example demo scene and example scripts show how to use Unity's NavMesh.</p>
+    <p>Next, you need gameobjects for both the player and an the AI NPC, or Escort Agent. The Escort Agent is the where the AI logic takes place, and therefore needs the script <code>EscortAgent.cs</code>. You should notice a few warnings when adding this script. To fix this we need to implement a script that inherits from <code>CalculatePathComponent.cs</code>. If you are planning on using Unity's NavMesh, you can use the component <code>NavMeshCalculatePath.cs</code> and skip to the next paragraph. If you plan on implementing your own path finding code, like A*, you need to create a new script the inherits from <code>CalculatePathComponent.cs</code>. This new script only need to implement one function, a funtion that takes in the start and end points of a path and returns a list of points. You can use <code>NavMeshCalculatePath.cs</code> as an example on how to get started with this script.</p>
+    <p>Now that you have a script that works with <code>CalculatePathComponent.cs</code> you can attach that to any gameobject. It is recomended to put the component on the gameobject that hold the level's physic collisions. Next you can reference this script in the <code>EscortAgent.cs</code>'s field "Calculate Path Component."</p>
+    <p>Almost there. Now the player needs to a way to comunicate to the Escort Agent. There are several ways of doing this; you can either create a new script that references the <code>AllyEscort.cs</code> and send state transitions there, or implement the functionality of sending commands in your own player input class. In the demo, there is an example of how to send commands to the Escort Agent located in the <code>EscortMessenger.cs</code> class.</p>
+    <p>Congragulations! You have set up the Escort Agent sucessfully.</p>
+
+    <h3 id='UnderstandingStates'>Understanding States</h3>
+    <p>Before creating your own states, it is good to understand how they work. The Escort Agent will handle calling the proper functions for the current state, and handle transitioning to other states. When the AI transitions to any state, it first initializes itself. Then the State updates every frame. This is where the logic takes place. The state will call a function on the first and last frame it executes as well. The Escort Agent works similarly to how a Player Controler script would work. The "input" is handled in the States, and the Escort Agent then moves the Gameobject around.</p>
+    <p><strong>Initialize - </strong> This function is called to initialize various variables. Each state must make sure it received the correct arguments. For example, the <code>MoveToPointState.cs</code> state must take in an argument for a <code>Vector3</code> as the point it will move towards. This code executes while the previous state is still running.</p>
+    <p><strong>On Enter - </strong> This function is called on the first frame the State is executed. Here is where variables can be set if needed, like timers.</p>
+    <p><strong>Update - </strong> This function is called every frame the state is running, <strong>Except</strong> the first and last frame. Here is where the logic for the state will go, like directing the <code>EscortAgent.cs</code>. As a reminder, the state will not be moving the Escort Agent's position, it will be updating an input that the Escort Agent will read.</p>
+    <p><strong>On Exit - </strong> This function will be called when the state is exciting. This can be used to implement code on the last frame.</p>
+    <p><strong>Execution Order - </strong> Let's say there are two states, State A and State B. If State A is currently running and then the Escort Agent receives a command to transition to State B on the second frame State A is running, the code will execute in this order:</p>
+    
+    <ol>
+        <li><code>StateA.Initialize</code></li>
+        <li><code>StateA.OnEnter</code></li>
+        <li><code>StateA.Update</code></li>
+        <li><code>StateA.Update</code> and <code>StateB.Initialize</code> (depending on script execution order, either function could execute first.)</li>
+        <li><code>StateA.OnExit</code></li>
+        <li><code>StateB.OnEnter</code></li>
+        <li><code>StateB.Update</code></li>
+        <li><code>Etc.</code></li>
+    </ol>
+    <p>Notice, that when the Escort Agent receives the command to transition to State B, there is one frame in between when this is called and when it first runs the function <code>OnEnter</code>.</p>
+
+    <h3 id="CreatingStates">Creating Custom States</h3>
+    <p>Looking to create some custom states? Make sure you fully understand how the states operate first. You can find this information by looking above.</p>
+    <p>Before creating a state, all states must be located in the folder <code>Resources/States</code>. A Unity project can have multiple resource folders, so navigate to one and make sure there is a folder labeled <code>States</code>.</p>
+    <p>To create a custom state, navigate to the proper folder and <code>Right Click > Create > Ally Escort > Create New State</code>. Rename this newly created state. In the inspector, you will notice the fields Override Speed and Override Acceleration. This can be used if you need to set the target speed of the Escort Agent. If you want the Escort Agent to sneak and walk slowly, you would adjust the speed for the state here. Otherwise, the Escort Agent will use its speed value.</p>
+    <p>To create your own custom code, click <code>Create New State Script</code>. This will bring up a save file menu. This will generate a new script that properly inherits from the <code>State.cs</code> class where you can implement your own state behaviors.</p>
+
+    <h2 id='Contact'>Contact Information</h2>
+    <p>Need support? Contact me through jakedruth@gmail.com</p>
+
+    <h2 id='Acknowledgements'>Acknowledgments</h2>
+    <p>This Unity Asset was created for a school assignment. Without that class assignment, this project would never exist in this capacity.</p>
+    
+    <h4>There is intentional white space so the table of contents can scroll properly.</h4>
+</body>
+
+</html>

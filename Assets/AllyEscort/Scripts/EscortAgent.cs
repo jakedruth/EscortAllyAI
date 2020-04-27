@@ -25,16 +25,16 @@ namespace AllyEscort
             return testObject == null;
         }
 
-        [NullWarning("This component is required for calculating paths.")]
+        [NullWarning("This component is required for calculating paths and cannot be left null.")]
         public CalculatePathComponent calculatePathComponent;
 
-        [NullWarning]
+        [NullWarning("This field is used for moving a cursor transform for debugging purposes. This field CAN be left null if desired")]
         public Transform cursorTransform;
 
-        public float maxSpeed;
-        public float acceleration;
+        public float maxSpeed = 4f;
+        public float acceleration = 50f;
         [ValueName("Range")]
-        public UseFloat useSmoothStopping;
+        public UseFloat useSmoothStopping = new UseFloat(true, 0.75f);
 
         private Vector3 _groundVelocity;
         private Vector3 _verticalVelocity;
@@ -48,8 +48,8 @@ namespace AllyEscort
             get { return CurrentState.overrideAcceleration.DetermineWhichValue(acceleration); }
         }
 
-        [NullWarning("The state must also be located in Resources/States")]
-        public string defaultState;
+        [NullWarning("This string must contain the name of a state. Additionally, the state must also be located in Resources/States folder")]
+        public string defaultState = "Idle";
 
         public State CurrentState { get; private set; }
         public State NextState { get; private set; }

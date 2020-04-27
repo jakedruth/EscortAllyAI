@@ -14,7 +14,9 @@ namespace AllyEscort
         public string additionalInfo;
 
         public NullWarning()
-        { }
+        {
+            additionalInfo = null;
+        }
 
         public NullWarning(string info)
         {
@@ -34,25 +36,37 @@ namespace AllyEscort
 
             if (attribute is NullWarning warning)
             {
+                string message = string.IsNullOrEmpty(warning.additionalInfo)
+                    ? "This field cannot be null."
+                    : warning.additionalInfo;
+
                 if (property.isArray)
                 {
                     if (property.arraySize == 0)
                     {
-                        string message = $"Warning: The field {property.displayName} can not be empty.\n{warning.additionalInfo}";
-                        DisplayWarning(message);
+                        DisplayWarning(property.displayName, message);
                     }
                 }
                 else if (property.objectReferenceValue == null)
                 {
-                    string message = $"Warning: The field {property.displayName} can not be null.\n{warning.additionalInfo}";
-                    DisplayWarning(message); 
+                    DisplayWarning(property.displayName, message);
                 }
             }
         }
 
-        public void DisplayWarning(string message)
+        public void DisplayWarning(string displayName, string message)
         {
-            EditorGUILayout.HelpBox(message, MessageType.Warning);
+            try
+            {
+                string combined = $"Warning for field {displayName}: {message}";
+                EditorGUILayout.HelpBox(combined, MessageType.Warning);
+            }
+            catch (Exception)
+            {
+                // No clue why, but when you first add the a script with this warning box, it freaks out for some reason.
+                // So this is hear to throw and exception and then promptly ignore it. For now?
+
+            }
         }
     }
 #endif

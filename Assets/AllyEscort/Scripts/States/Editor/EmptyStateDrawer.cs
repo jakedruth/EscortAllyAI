@@ -37,6 +37,13 @@ namespace AllyEscort
                 if (newFilePath != null)
                 {
                     string fileName = Path.GetFileNameWithoutExtension(newFilePath);
+
+                    // check to see if the file contains any 
+                    if (fileName.Contains(" "))
+                    {
+                        throw new ArgumentException($"The file name can not contain any space: {fileName}");
+                    }
+
                     string newFileText = 
 // Fancy notation for a interpolated verbatim string literal
 $@"using System.Collections;
